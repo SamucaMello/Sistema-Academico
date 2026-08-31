@@ -1,0 +1,3 @@
+
+class AlunoException(BaseException):
+    pass
