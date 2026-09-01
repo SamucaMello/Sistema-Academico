@@ -1,20 +1,22 @@
 from beanie import Document, Indexed
-from pydantic import EmailStr
 from typing import Annotated
-from redis_om import HashModel, Field
+from redis_om import Field, HashModel
 
 
 class Aluno(Document):
-    RA:Annotated[str, Indexed(unique=True)]
+    RA: Annotated[str, Indexed(unique=True)]
     nome:str
-    email:EmailStr
+    email:str
     curso:str 
     semestre:int 
 
 
-class AlunoRedis(HashModel):
+class AlunoRedis(HashModel, index=True):
     RA: str 
     nome:str
     email:str
     curso:str
     semestre:int
+    id:str = Field(index=True)
+
+

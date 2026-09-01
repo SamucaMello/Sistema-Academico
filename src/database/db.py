@@ -1,11 +1,12 @@
+from pathlib import Path
 import importlib
-from importlib.metadata.diagnose import inspect
+import inspect
 
-from fastapi import Path
 from pymongo import AsyncMongoClient
-from config import MONGO_URI
+from config import MONGO_URI, REDIS_URL
 from beanie import Document, init_beanie
 from redis import Redis
+from redis_om import get_redis_connection
 
 def get_beanie_models():
     models = []
@@ -29,14 +30,29 @@ def get_beanie_models():
     return models
 
 class DBManager:
-    def __init__(self, db_name:str = "ProjetoAcademico"):
-        self.client =  AsyncMongoClient(host = MONGO_URI)
-        init_beanie(self.client[db_name], document_models = get_beanie_models())
+    @classmethod
+    def start_mongo(cls, db_name:str = "ProjAcademico"):
+        cls.db_name = db_name
+        cls.mongo_client =  AsyncMongoClient(host = MONGO_URI)
+        print(f"Conectado ao mongoDB -> DB: {cls.db_name}")
+
+    @classmethod
+    async def config_beanie(cls):
+        db = cls.mongo_client[cls.db_name]
+        await init_beanie(db, document_models = get_beanie_models())
+        print("beanie configurado")
         
-    
-    def close(self):
-        self.client.close()
-        print("conexão com banco fechada")
+    @classmethod
+    def start_redis(cls):
+        cls.redis_client = get_redis_connection(url=REDIS_URL)
+        print("Conectado ao redis")
+
+        
+    @classmethod
+    async def close(cls):
+        await cls.mongo_client.close()
+        cls.redis_client.close()
+        
     
 
     
