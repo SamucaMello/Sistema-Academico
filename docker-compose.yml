@@ -1,5 +1,6 @@
 services:
   api:
+    container_name: api_container
     build: 
       context: .
       dockerfile: Dockerfile 
@@ -17,17 +18,19 @@ services:
   
   redis:
     image: redis/redis-stack:latest
-    container_name: redis_app
+    container_name: redis_container
     ports:
-      - "6379:6379"   # Porta do banco de dados
-      - "8001:8001"   # Interface visual (RedisInsight)
+      - "6379:6379"   
+      - "8001:8001"   # -- interface
     volumes:
       - redis_data:/data
     restart: always
+    networks:
+      - rede_academico
 
 
   mongodb:
-    image: mongo:latest
+    image: mongo:8.3.8
     container_name: mongodb
     restart: always
     ports:

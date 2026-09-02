@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from src.schemas.pagination_schema import PaginationSchema
 from src.exceptions.aluno_exception import AlunoException
 from src.schemas.aluno_schema import CreateAlunoSchema, UpdateAlunoSchema
@@ -75,6 +77,8 @@ class AlunoService:
     @classmethod
     async def update(cls, id:PydanticObjectId, updateschema:UpdateAlunoSchema):
         aluno = await Aluno.get(id)
+        if not aluno:
+            raise AlunoException("Aluno não encontrado", status_code=HTTPStatus.NOT_FOUND)
 
         updts = updateschema.model_dump(exclude_unset=True)
         await aluno.set(updts)
@@ -84,7 +88,10 @@ class AlunoService:
     
     @classmethod
     async def delete(cls, id:PydanticObjectId) -> Aluno:
-        aluno = await cls.get_by_id(id)
+        aluno = await Aluno.get(id)
+        if not aluno:
+            raise AlunoException("Aluno não encontrado", status_code=HTTPStatus.NOT_FOUND)
+        
         if aluno:
             cls._redis_delete(aluno)
             await aluno.delete() 
