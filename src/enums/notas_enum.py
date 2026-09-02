@@ -1,8 +1,8 @@
 
-from src.enums.base_enum import BaseEnum
+from src.enums.base_enum import AppBaseEnum
 
 
-class NotasEnum(BaseEnum):
+class NotasEnum(AppBaseEnum):
     APROVADO   = "APROVADO"
     EXAME      = "EXAME"
     REPROVADO  = "REPROVADO"
