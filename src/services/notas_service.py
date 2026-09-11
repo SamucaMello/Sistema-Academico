@@ -1,37 +1,35 @@
+from typing import Optional, Union
+
 from beanie import PydanticObjectId
 
-from enums.notas_enum import NotasEnum
-from models.notas import Notas
-from src.schemas.notas_schema import CreateNotaSchema
+from src.enums.notas_enum import NotasEnum
+from src.models.notas import Notas, NotasRedis
+from src.schemas.notas_schema import CreateNotaSchema, UpdateNotaSchema
 from src.services.aluno_service import AlunoService
 
-class NotasService:
+class NotasService:        
     @staticmethod
-    def _redis_get(id: PydanticObjectId) -> Optional[AlunoRedis]:
+    def _redis_get(id: PydanticObjectId) -> Optional[NotasRedis]:
         try: 
-            return AlunoRedis.find(
-                AlunoRedis.id == str(id)
+            return NotasRedis.find(
+                NotasRedis.id == str(id)
             ).first()
-            except Exception:
+        except Exception:
                 return None
     
-        @staticmethod
-        def _redis_save(aluno: Aluno) -> None:
-            data = aluno.model_dump(mode="json")
-            data["id"] = str(aluno.id)
-            AlunoRedis(
-                **data
-            ).save().expire(60)
+    @staticmethod
+    def _redis_save(notas:Notas) -> None:
+        data = notas.model_dump(mode="json")
+        data["id"] = str(notas.id)
+        NotasRedis(**data).save().expire(60)
     
     
+    @classmethod
+    def _redis_delete(cls, id:PydanticObjectId) -> None:
+        aluno_redis = cls._redis_get(id)
     
-    
-        @classmethod
-        def _redis_delete(cls, aluno: Aluno) -> None:
-            aluno_redis = cls._redis_get(aluno)
-    
-            if aluno_redis:
-                aluno_redis.delete()
+        if aluno_redis:
+            aluno_redis.delete()
 
     @staticmethod 
     def calcular_media(*notas:list):
@@ -59,7 +57,27 @@ class NotasService:
                              )
         return await nova_nota.insert()
 
+
+    @classmethod 
+    async def _mongo_get(cls, id:PydanticObjectId) -> Notas:
+        if (nota:=Notas.get(id)):
+            return nota
+        raise NotaException("Nota não encontrada")
+    
     @classmethod
     async def get_by_id(cls, id:PydanticObjectId):
-        
+        return cls._redis_get(id) or cls._mongo_get(id)
+
+    @classmethod 
+    async def update(cls, id:PydanticObjectId, updts:UpdateNotaSchema) -> Notas:
+        nota = await cls._mongo_get(id)
+        nota = await nota.set(updts.model_dump(exclude_unset=True))
+        cls._redis_save(nota)
+        return nota 
+
+
+    
+
+    
+    
         
