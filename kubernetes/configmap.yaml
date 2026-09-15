@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DB_HOST: "database-service"
+  DB_PORT: "27017"
+  DB_NAME: "sistema_academico"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  PORT: "8000"

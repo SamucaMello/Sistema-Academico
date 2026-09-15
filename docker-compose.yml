@@ -1,38 +1,52 @@
 services:
-  api:
-    container_name: api_container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend 
+    ports:
+      - "5173:5173"
+
+  backend:
     build: 
-      context: .
+      context: ./backend
       dockerfile: Dockerfile 
 
     restart: always
     env_file:
-      - .env 
+      - ./backend/.env
     depends_on:
       - redis
       - mongodb
     networks:
       - rede_academico
     ports:
-      - "8080:8080"
-  
-  redis:
-    image: redis/redis-stack:latest
-    container_name: redis_container
-    ports:
-      - "6379:6379"   
-      - "8001:8001"   # -- interface
-    volumes:
-      - redis_data:/data
-    restart: always
-    networks:
-      - rede_academico
+      - "${PORT-8000}:${PORT-8000}"
 
+
+
+  redis:
+      image: redis/redis-stack:latest
+      container_name: redis_container
+      ports:
+        - "6379:6379"
+        - "8001:8001"   # -- interface grafica
+      volumes:
+        - redis_data:/data
+      restart: always
+      networks:
+        - rede_academico
+    
 
   mongodb:
-    image: mongo:8.3.8
+    image: mongo:8.0
     container_name: mongodb
     restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-}
     ports:
       - "27017:27017"
     volumes:
@@ -49,4 +63,3 @@ volumes:
 networks:
   rede_academico:
     driver: bridge 
-
