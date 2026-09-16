@@ -1,4 +1,4 @@
-# Sistema Acadêmico Multiplataforma
+# Sistema Acadêmico
 
 Sistema acadêmico simples para cadastro de alunos e lançamento de notas, com front-end em React + TypeScript, back-end em FastAPI, persistência em MongoDB e cache/estruturas em Redis. O projeto está preparado para rodar tanto via Docker Compose (ambiente local) quanto via manifests Kubernetes (deploy em cluster).
 
