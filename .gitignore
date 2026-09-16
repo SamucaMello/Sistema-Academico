@@ -1,16 +1,10 @@
 
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
 
 
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
+
 
 env/
 venv/
@@ -24,11 +18,8 @@ ENV/
 
 dist/
 build/
-*.egg-info/
+
 
 
 .vscode/
 .idea/
-*.swp
-*.swo
-.DS_Store
